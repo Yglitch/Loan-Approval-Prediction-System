@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Loan Approval System — Smart Loan Prediction</title>
+<meta name="description" content="Predict loan approval instantly using a trained Machine Learning model." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<a class="skip-link" href="#loanForm">Skip to loan form</a>
+
+<!-- ======================= HEADER ======================= -->
+<header class="site-header" id="siteHeader">
+  <div class="header-inner">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 2l9 4.5v3c0 6.1-3.9 10.9-9 12.5-5.1-1.6-9-6.4-9-12.5v-3L12 2z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M8.5 12.3l2.4 2.4 4.6-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      <div class="brand-text">
+        <span class="brand-title">AI Loan Approval System</span>
+        <span class="brand-sub">Machine learning credit decisioning</span>
+      </div>
+    </div>
+
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav class="site-nav" id="siteNav" aria-label="Primary">
+      <a href="#top">Home</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+      <a href="#support">Support</a>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode" aria-pressed="false">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.7"/><path d="M12 2.5v2.2M12 19.3v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 019.5 4a8.5 8.5 0 1010.5 10.5z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ======================= HERO ======================= -->
+  <section class="hero reveal">
+    <div class="hero-inner">
+      <div class="hero-copy">
+        <span class="eyebrow">Powered by machine learning</span>
+        <h1>Smart AI Loan Approval Prediction</h1>
+        <p class="hero-sub">Instantly predict loan approval using Machine Learning.</p>
+        <div class="hero-actions">
+          <button class="btn btn-primary btn-lg ripple" id="heroPredictBtn">Predict Loan</button>
+          <a class="btn btn-ghost btn-lg" href="#about">Learn More</a>
+        </div>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <svg viewBox="0 0 420 360" fill="none">
+          <rect x="40" y="60" width="300" height="230" rx="18" class="art-panel" />
+          <rect x="70" y="95" width="140" height="14" rx="7" class="art-bar" />
+          <rect x="70" y="125" width="90" height="10" rx="5" class="art-bar-muted" />
+          <rect x="70" y="165" width="240" height="90" rx="12" class="art-chart-bg" />
+          <polyline points="80,235 120,205 160,220 200,180 240,195 280,150 300,165" class="art-line" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="300" cy="165" r="6" class="art-dot" />
+          <circle cx="330" cy="90" r="34" class="art-badge" />
+          <path d="M318 90l8 8 16-16" class="art-check" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= STATS ======================= -->
+  <section class="stats-section reveal" aria-label="Platform statistics">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M4 19V9M10 19V5M16 19v-7M22 19V3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+        <span class="stat-value" data-count="128400" id="statPredictions">0</span>
+        <span class="stat-label">Total predictions</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="stat-value" data-count="78" data-suffix="%" id="statApproval">0%</span>
+        <span class="stat-label">Approval rate</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2l3 6.5 7 1-5.2 4.9L18 21l-6-3.6L6 21l1.2-6.6L2 9.5l7-1L12 2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></span>
+        <span class="stat-value" data-count="712" id="statCibil">0</span>
+        <span class="stat-label">Average CIBIL score</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="18" height="12" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M3 11h18" stroke="currentColor" stroke-width="1.7"/></svg></span>
+        <span class="stat-value" data-count="1850000" data-prefix="₹" id="statLoan">₹0</span>
+        <span class="stat-label">Average loan amount</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= MAIN SPLIT: FEATURES + FORM ======================= -->
+  <section class="split-section" id="about">
+    <div class="split-inner">
+
+      <!-- LEFT: illustration + feature cards -->
+      <div class="split-left reveal">
+        <div class="side-art" aria-hidden="true">
+          <svg viewBox="0 0 320 260" fill="none">
+            <rect x="20" y="30" width="220" height="150" rx="16" class="art-panel-alt" />
+            <circle cx="255" cy="60" r="42" class="art-badge-alt" />
+            <path d="M238 60l12 12 24-24" class="art-check-alt" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <rect x="45" y="60" width="120" height="12" rx="6" class="art-bar-alt" />
+            <rect x="45" y="88" width="80" height="9" rx="4.5" class="art-bar-muted-alt" />
+            <rect x="45" y="120" width="170" height="46" rx="10" class="art-chart-bg-alt" />
+          </svg>
+        </div>
+
+        <div class="feature-grid">
+          <div class="feature-card">
+            <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></span>
+            <p class="feature-title">Fast prediction</p>
+            <p class="feature-desc">Results in seconds</p>
+          </div>
+          <div class="feature-card">
+            <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2l8 4v5c0 5.4-3.4 9.8-8 11-4.6-1.2-8-5.6-8-11V6l8-4z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></span>
+            <p class="feature-title">Secure data</p>
+            <p class="feature-desc">Nothing is stored</p>
+          </div>
+          <div class="feature-card">
+            <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3.2" stroke="currentColor" stroke-width="1.7"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></span>
+            <p class="feature-title">AI powered</p>
+            <p class="feature-desc">Trained ML model</p>
+          </div>
+          <div class="feature-card">
+            <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M4 19V9M10 19V5M16 19v-7M22 19V3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+            <p class="feature-title">Accurate results</p>
+            <p class="feature-desc">Validated on real data</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: glassmorphism prediction form -->
+      <div class="split-right reveal">
+        <div class="form-card" id="formCard">
+          <div class="form-card-head">
+            <h2>Loan prediction form</h2>
+            <p>Fill in the applicant details for an instant decision.</p>
+          </div>
+
+          <form id="loanForm" novalidate autocomplete="off">
+            <div class="field-grid">
+
+              <div class="field" data-field="no_of_dependents">
+                <span class="field-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.6"/><circle cx="17" cy="9" r="2.4" stroke="currentColor" stroke-width="1.6"/><path d="M2.5 20c.6-3.8 3-6 5.5-6s4.9 2.2 5.5 6M14.5 20c.4-2.8 1.9-4.6 4-4.9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+                <div class="field-control">
+                  <input type="number" id="no_of_dependents" name="no_of_dependents" placeholder=" " min="0" step="1" aria-describedby="err_no_of_dependents" />
+                  <label for="no_of_dependents">Number of dependents</label>
+                </div>
+                <span class="error-msg" id="err_no_of_dependents" role="alert"></span>
+              </div>
+
+              <div class="field" data-field="education">
+                <span class="field-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3l10 5-10 5L2 8l10-5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M6 10.5V16c0 1.7 2.7 3 6 3s6-1.3 6-3v-5.5" stroke="currentColor" stroke-width="1.6"/></svg></span>
+                <div class="field-control">
+                  <select id="education" name="education" aria-describedby="err_education">
+                    <option value="" selected disabled></option>
+                    <option value="Graduate">Graduate</option>
+                    <option value="Not Graduate">Not Graduate</option>
+                  </select>
+                  <label for="education">Education</label>
+                </div>
+                <span class="error-msg" id="err_education" role="alert"></span>
+              </div>
+
+              <div class="field" data-field="self_employed">
+                <span class="field-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="8" width="18" height="12" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M8 8V6a2 2 0 012-2h4a2 2 0 012 2v2" stroke="currentColor" stroke-width="1.6"/></svg></span>
+                <div class="field-control">
+                  <select id="self_employed" name="self_employed" aria-describedby="err_self_employed">
+                    <option value="" selected disabled></option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                  <label for="self_employed">Self employed</label>
+                </div>
+                <span class="error-msg" id="err_self_employed" role="alert"></span>
+              </div>
+
+              <div class="field" data-field="income_annum">
+                <span class="field-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6 4h9M6 8h9M9 4v16M9 12h6a3 3 0 000-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                <div class="field-control">
+                  <input type="number" id="income_annum" name="income_annum" placeholder=" " min="0" step="1000" aria-describedby="err_income_annum" />
+                  <label for="income_annum">Annual income (₹)</label>
+                </div>
+                <span class="error-msg" id="err_income_annum" role="alert"></span>
+              </div>
+
+              <div class="field" data-field="loan_amount">
+                <span class="field-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="2.5" y="6" width="19" height="12" rx="2" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="2.6" stroke="currentColor" stroke-width="1.6"/></svg></span>
+                <div class="field-control">
+                  <input type="number" id="loan_amount" name="loan_amount" placeholder=" " min="0" step="1000" aria-describedby="err_loan_amount" />
+                  <label for="loan_amount">Loan amount (₹)</label>
+                </div>
+                <span class="error-msg" id="err_loan_amount" role="alert"></span>
+              </div>
+
+              <div class="field" data-field="loan_term">
+                <span class="field-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="16" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M3.5 9.5h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+                <div class="field-control">
+                  <input type="number" id="loan_term" name="loan_term" placeholder=" " min="0" step="1" aria-describedby="err_loan_term" />
+                  <label for="loan_term">Loan term (months)</label>
+                </div>
+                <span class="error-msg" id="err_loan_term" role="alert"></span>
+              </div>
+
+              <div class="field" data-field="cibil_score">
+                <span class="field-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M4 18a8 8 0 1116 0" stroke="currentColor" stroke-width="1.6"/><path d="M12 18l4-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+                <div class="field-control">
+                  <input type="number" id="cibil_score" name="cibil_score" placeholder=" " min="300" max="900" step="1" aria-describedby="err_cibil_score" />
+                  <label for="cibil_score">CIBIL score (300–900)</label>
+                </div>
+                <span class="error-msg" id="err_cibil_score" role="alert"></span>
+              </div>
+
+              <div class="field" data-field="residential_assets_value">
+                <span class="field-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M4 11l8-7 8 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10v9a1 1 0 001 1h10a1 1 0 001-1v-9" stroke="currentColor" stroke-width="1.6"/></svg></span>
+                <div class="field-control">
+                  <input type="number" id="residential_assets_value" name="residential_assets_value" placeholder=" " min="0" step="1000" aria-describedby="err_residential_assets_value" />
+                  <label for="residential_assets_value">Residential assets (₹)</label>
+                </div>
+                <span class="error-msg" id="err_residential_assets_value" role="alert"></span>
+              </div>
+
+              <div class="field" data-field="commercial_assets_value">
+                <span class="field-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="17" rx="1.5" stroke="currentColor" stroke-width="1.6"/><path d="M8 8h2M14 8h2M8 12h2M14 12h2M8 16h2M14 16h2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+                <div class="field-control">
+                  <input type="number" id="commercial_assets_value" name="commercial_assets_value" placeholder=" " min="0" step="1000" aria-describedby="err_commercial_assets_value" />
+                  <label for="commercial_assets_value">Commercial assets (₹)</label>
+                </div>
+                <span class="error-msg" id="err_commercial_assets_value" role="alert"></span>
+              </div>
+
+              <div class="field" data-field="luxury_assets_value">
+                <span class="field-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6 9l6-6 6 6-6 12L6 9z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M2 9h20M9.5 3l-2 6 4.5 12 4.5-12-2-6" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg></span>
+                <div class="field-control">
+                  <input type="number" id="luxury_assets_value" name="luxury_assets_value" placeholder=" " min="0" step="1000" aria-describedby="err_luxury_assets_value" />
+                  <label for="luxury_assets_value">Luxury assets (₹)</label>
+                </div>
+                <span class="error-msg" id="err_luxury_assets_value" role="alert"></span>
+              </div>
+
+              <div class="field" data-field="bank_asset_value">
+                <span class="field-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M3 10l9-6 9 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 10v9M9 10v9M15 10v9M19.5 10v9M3 21h18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+                <div class="field-control">
+                  <input type="number" id="bank_asset_value" name="bank_asset_value" placeholder=" " min="0" step="1000" aria-describedby="err_bank_asset_value" />
+                  <label for="bank_asset_value">Bank asset value (₹)</label>
+                </div>
+                <span class="error-msg" id="err_bank_asset_value" role="alert"></span>
+              </div>
+
+            </div>
+
+            <button type="submit" class="btn btn-predict ripple" id="predictBtn">
+              <span class="btn-predict-label" id="btnLabel">Predict Loan Status</span>
+              <span class="btn-spinner" id="btnSpinner" hidden></span>
+            </button>
+          </form>
+
+          <!-- Loading state -->
+          <div class="loading-state" id="loadingState" hidden>
+            <span class="loading-ring" aria-hidden="true"></span>
+            <p>Analyzing your application…</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ======================= RESULT SECTION ======================= -->
+  <section class="result-section" id="resultSection" hidden>
+    <div class="result-card" id="resultCard">
+
+      <canvas class="confetti-canvas" id="confettiCanvas" aria-hidden="true"></canvas>
+
+      <span class="result-icon" id="resultIcon" aria-hidden="true"></span>
+      <h2 class="result-title" id="resultTitle"></h2>
+      <p class="result-message" id="resultMessage"></p>
+
+      <div class="result-metrics">
+        <div class="metric">
+          <span class="metric-label">Prediction</span>
+          <span class="metric-value" id="metricPrediction">—</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Confidence score</span>
+          <span class="metric-value" id="metricConfidence">—</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Risk level</span>
+          <span class="metric-value" id="metricRisk">—</span>
+        </div>
+      </div>
+
+      <div class="recommendation" id="recommendationBox">
+        <p class="recommendation-title">Recommendation</p>
+        <p class="recommendation-text" id="recommendationText"></p>
+      </div>
+
+      <p class="result-disclaimer">Confidence score and risk level are estimated in the browser from your inputs for illustration; the approved/rejected outcome above comes from your ML model.</p>
+
+      <button type="button" class="btn btn-ghost" id="tryAgainBtn">Run another check</button>
+    </div>
+  </section>
+
+  <!-- ======================= DASHBOARD CHARTS ======================= -->
+  <section class="charts-section reveal" aria-label="Portfolio analytics">
+    <div class="section-heading">
+      <h2>Portfolio insights</h2>
+      <p>Aggregate patterns from recent loan applications.</p>
+    </div>
+    <div class="charts-grid">
+      <div class="chart-card">
+        <p class="chart-title">Loan distribution</p>
+        <canvas id="chartLoanDistribution" height="220"></canvas>
+      </div>
+      <div class="chart-card">
+        <p class="chart-title">CIBIL score distribution</p>
+        <canvas id="chartCibilDistribution" height="220"></canvas>
+      </div>
+      <div class="chart-card">
+        <p class="chart-title">Income vs loan amount</p>
+        <canvas id="chartIncomeVsLoan" height="220"></canvas>
+      </div>
+      <div class="chart-card">
+        <p class="chart-title">Asset breakdown</p>
+        <canvas id="chartAssetBreakdown" height="220"></canvas>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ======================= FOOTER ======================= -->
+<footer class="site-footer" id="support">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 2l9 4.5v3c0 6.1-3.9 10.9-9 12.5-5.1-1.6-9-6.4-9-12.5v-3L12 2z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+      </span>
+      <p>AI Loan Approval System</p>
+      <p class="footer-tagline">Instant, transparent, ML-driven loan decisioning.</p>
+      <p class="footer-contact-info" id="contact">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16v12H4z" stroke="currentColor" stroke-width="1.6"/><path d="M4 7l8 6 8-6" stroke="currentColor" stroke-width="1.6"/></svg>
+        <a href="mailto:hello@loaniq.example">hello@loaniq.example</a>
+      </p>
+    </div>
+
+    <div class="footer-col">
+      <p class="footer-heading">Company</p>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+      <a href="#support">Support</a>
+    </div>
+    <div class="footer-col">
+      <p class="footer-heading">Legal</p>
+      <a href="#privacy-panel">Privacy policy</a>
+      <a href="#terms-panel">Terms of service</a>
+    </div>
+    <div class="footer-col">
+      <p class="footer-heading">Connect</p>
+      <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://linkedin.com" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+  </div>
+  <div class="footer-legal-panel" id="privacy-panel">
+    <p class="footer-legal-title">Privacy policy</p>
+    <p>This is placeholder copy. Replace with your real privacy policy describing what applicant data is collected, how it's used by the prediction model, and how long it's retained.</p>
+    <a class="footer-legal-close" href="#top">Close</a>
+  </div>
+
+  <div class="footer-legal-panel" id="terms-panel">
+    <p class="footer-legal-title">Terms of service</p>
+    <p>This is placeholder copy. Replace with your real terms covering acceptable use, disclaimers about the accuracy of ML-generated predictions, and liability limits.</p>
+    <a class="footer-legal-close" href="#top">Close</a>
+  </div>
+
+  <div class="footer-bottom">
+    <p>&copy; 2026 AI Loan Approval System. Built for demonstration purposes.</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
