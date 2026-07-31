@@ -15,16 +15,16 @@ from ml_model import predict_loan_status
 router = APIRouter()
 
 
+import traceback
+
 @router.post("/predict", response_model=LoanApplicationOutput)
 def predict_loan(data: LoanApplicationInput, db: Session = Depends(get_db)):
-    """
-    Accepts applicant details, runs the ML model, saves the result
-    to the database, and returns the prediction.
-    """
     try:
-        result = predict_loan_status(data.model_dump())
+        result = predict_loan_status(data.dict())
     except Exception as e:
+        traceback.print_exc()   # <-- prints the FULL real error to your uvicorn terminal
         raise HTTPException(status_code=400, detail=f"Prediction failed: {e}")
+    ...
 
     # Save the application + prediction to the database
     record = LoanApplication(
