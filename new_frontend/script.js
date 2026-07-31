@@ -9,9 +9,9 @@
    6. Floating label state (filled/empty)
    7. Form validation
    8. Confetti effect
-   9. Client-side confidence/risk estimate (UI-only, does not affect the
-      model's approved/rejected outcome)
-   10. Prediction submission (Fetch API -> Flask backend)
+   9. Risk band + recommendation, derived from the model's real confidence
+      score returned by the API (the score itself is not invented client-side)
+   10. Prediction submission (Fetch API -> FastAPI backend)
    11. Dashboard charts (Chart.js)
    ========================================================================= */
 
@@ -287,48 +287,52 @@ function fireConfetti(canvas) {
 }
 
 /* -------------------------------------------------------------------------
-   9. CLIENT-SIDE CONFIDENCE / RISK ESTIMATE (UI-only)
-   Your Flask model only returns { loan_status }. It has no notion of a
-   confidence score, risk band, or recommendation text. To satisfy the UI
-   spec without inventing numbers on the backend, we derive a simple,
-   transparent estimate from the same inputs the user already typed in:
-     - CIBIL score is the dominant signal for confidence.
-     - Loan-to-income ratio nudges risk up or down.
-   This is clearly labelled in the UI as an estimate, and it never
-   overrides the actual approved/rejected value from the API.
+   9. RISK BAND + RECOMMENDATION
+   The FastAPI backend (controller.py -> ml_model.py) now returns a real
+   confidence score from the trained model:
+     { "status": "Approved" | "Rejected", "confidence": 0.0-1.0 }
+   Confidence is no longer guessed on the client. This function only turns
+   that real confidence into a risk label and a short suggestion — it does
+   not alter the prediction itself.
    ------------------------------------------------------------------------- */
-function estimateConfidenceAndRisk(payload, approved) {
-  const cibil = payload.cibil_score;
-  const loanToIncome = payload.income_annum > 0 ? payload.loan_amount / payload.income_annum : 99;
-
-  // Base confidence scales with how far CIBIL sits from the 300-900 range's
-  // midpoint, biased toward the direction of the actual outcome.
-  const cibilStrength = Math.min(1, Math.max(0, (cibil - 300) / 600));
-  let confidence = approved
-    ? 60 + cibilStrength * 35
-    : 60 + (1 - cibilStrength) * 35;
-  confidence = Math.round(Math.min(97, Math.max(52, confidence)));
+function deriveRiskAndRecommendation(status, confidencePercent) {
+  const approved = status === 'Approved';
 
   let risk = 'Moderate';
-  if (cibil >= 750 && loanToIncome <= 4) risk = 'Low';
-  else if (cibil < 650 || loanToIncome > 6) risk = 'High';
+  if (confidencePercent >= 85) risk = 'Low';
+  else if (confidencePercent < 65) risk = 'High';
 
   let recommendation;
   if (approved) {
-    recommendation = 'This profile meets the model\u2019s approval criteria. Keep your CIBIL score steady and avoid new large liabilities before disbursal.';
-  } else if (risk === 'High') {
-    recommendation = 'Consider improving your CIBIL score, reducing the requested loan amount, or adding a co-applicant to strengthen this application.';
+    recommendation = risk === 'Low'
+      ? 'Strong profile \u2014 the model is highly confident in this approval. Keep your CIBIL score steady and avoid new large liabilities before disbursal.'
+      : 'This application is likely to be approved, but the model\u2019s confidence is moderate. Maintaining your current CIBIL score and income stability will help.';
   } else {
-    recommendation = 'A slightly lower loan amount or a longer repayment term may improve the odds of approval on a future application.';
+    recommendation = risk === 'High'
+      ? 'Consider improving your CIBIL score, reducing the requested loan amount, or adding a co-applicant to strengthen a future application.'
+      : 'This application was close to the approval threshold. A slightly lower loan amount or a longer repayment term may improve the odds next time.';
   }
 
-  return { confidence, risk, recommendation };
+  return { risk, recommendation };
 }
 
 /* -------------------------------------------------------------------------
    10. PREDICTION SUBMISSION
+   Backend contract (see main.py / controller.py / ml_model.py):
+     POST /predict
+     Request body:  the same 11 applicant fields collected below
+     Response body: { "status": "Approved" | "Rejected", "confidence": 0.0-1.0 }
+
+   NOTE: main.py does not add CORSMiddleware. If this page is served from
+   a different origin/port than the API (e.g. opened as a file, or served
+   by a live-reload tool on another port), the browser will block the
+   request with a CORS error even though the server is reachable. Add to
+   main.py if that happens:
+     from fastapi.middleware.cors import CORSMiddleware
+     app.add_middleware(CORSMiddleware, allow_origins=["*"],
+                         allow_methods=["*"], allow_headers=["*"])
    ------------------------------------------------------------------------- */
-const PREDICT_ENDPOINT = 'http://127.0.0.1:5000/predict';
+const PREDICT_ENDPOINT = 'http://127.0.0.1:8000/predict';
 
 const loanForm = document.getElementById('loanForm');
 const predictBtn = document.getElementById('predictBtn');
@@ -420,31 +424,43 @@ loanForm.addEventListener('submit', async (event) => {
       body: JSON.stringify(payload)
     });
 
-    if (!response.ok) throw new Error(`Server responded with ${response.status}`);
+    if (!response.ok) {
+      // FastAPI's /predict raises HTTPException(400) on prediction failure,
+      // with the reason in `detail`.
+      let detail = `Server responded with ${response.status}`;
+      try {
+        const errBody = await response.json();
+        if (errBody?.detail) detail = errBody.detail;
+      } catch (_) { /* response wasn't JSON; keep the generic message */ }
+      throw new Error(detail);
+    }
 
     const data = await response.json();
 
-    if (data.loan_status === 'Approved') {
-      const est = estimateConfidenceAndRisk(payload, true);
+    // Backend contract: { status: "Approved" | "Rejected", confidence: 0.0-1.0 }
+    const confidencePercent = Math.round(Number(data.confidence) * 100);
+
+    if (data.status === 'Approved') {
+      const { risk, recommendation } = deriveRiskAndRecommendation(data.status, confidencePercent);
       showResult({
         state: 'approved',
         title: 'Loan Approved',
         message: 'Congratulations! Your loan is likely to be approved.',
         prediction: 'Approved',
-        confidence: `${est.confidence}%`,
-        risk: est.risk,
-        recommendation: est.recommendation
+        confidence: `${confidencePercent}%`,
+        risk,
+        recommendation
       });
-    } else if (data.loan_status === 'Rejected') {
-      const est = estimateConfidenceAndRisk(payload, false);
+    } else if (data.status === 'Rejected') {
+      const { risk, recommendation } = deriveRiskAndRecommendation(data.status, confidencePercent);
       showResult({
         state: 'rejected',
         title: 'Loan Rejected',
         message: 'Your application does not currently meet the approval criteria.',
         prediction: 'Rejected',
-        confidence: `${est.confidence}%`,
-        risk: est.risk,
-        recommendation: est.recommendation
+        confidence: `${confidencePercent}%`,
+        risk,
+        recommendation
       });
     } else {
       showResult({
@@ -461,13 +477,13 @@ loanForm.addEventListener('submit', async (event) => {
     showResult({
       state: 'error-state',
       title: 'Couldn\u2019t Reach the Prediction Service',
-      message: 'Make sure the backend server is running at http://127.0.0.1:5000.',
+      message: `Make sure the FastAPI server is running at ${PREDICT_ENDPOINT} (uvicorn main:app --reload). ${err.message ? `Details: ${err.message}` : ''}`,
       prediction: '—',
       confidence: '—',
       risk: '—',
-      recommendation: 'Start the Flask server and try again.'
+      recommendation: 'Start the backend server and try again.'
     });
-    console.error('LoanIQ prediction request failed:', err);
+    console.error('Loan prediction request failed:', err);
   } finally {
     setLoading(false);
   }
