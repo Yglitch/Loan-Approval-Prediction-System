@@ -35,8 +35,8 @@
 
     <nav class="site-nav" id="siteNav" aria-label="Primary">
       <a href="#top">Home</a>
-      <a href="#about">About</a>
-      <a href="#contact">Contact</a>
+      <button type="button" class="nav-link-btn" data-modal="about">About</button>
+      <button type="button" class="nav-link-btn" data-modal="contact">Contact</button>
       <a href="#support">Support</a>
       <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode" aria-pressed="false">
         <svg class="icon-sun" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.7"/><path d="M12 2.5v2.2M12 19.3v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
@@ -57,7 +57,7 @@
         <p class="hero-sub">Instantly predict loan approval using Machine Learning.</p>
         <div class="hero-actions">
           <button class="btn btn-primary btn-lg ripple" id="heroPredictBtn">Predict Loan</button>
-          <a class="btn btn-ghost btn-lg" href="#about">Learn More</a>
+          <button type="button" class="btn btn-ghost btn-lg" data-modal="about">Learn More</button>
         </div>
       </div>
       <div class="hero-art" aria-hidden="true">
@@ -142,7 +142,7 @@
         </div>
       </div>
 
-      <!-- RIGHT: glassmorphism prediction form -->
+      <!-- RIGHT: neomorphic prediction form -->
       <div class="split-right reveal">
         <div class="form-card" id="formCard">
           <div class="form-card-head">
@@ -269,9 +269,51 @@
           </form>
 
           <!-- Loading state -->
+           
           <div class="loading-state" id="loadingState" hidden>
-            <span class="loading-ring" aria-hidden="true"></span>
-            <p>Analyzing your application…</p>
+           <!-- <span class="loading-ring" aria-hidden="true"></span> -->
+            <!-- From Uiverse.io by BlackisPlay --> 
+<div id="ghost">
+  <div id="red">
+    <div id="pupil"></div>
+    <div id="pupil1"></div>
+    <div id="eye"></div>
+    <div id="eye1"></div>
+    <div id="top0"></div>
+    <div id="top1"></div>
+    <div id="top2"></div>
+    <div id="top3"></div>
+    <div id="top4"></div>
+    <div id="st0"></div>
+    <div id="st1"></div>
+    <div id="st2"></div>
+    <div id="st3"></div>
+    <div id="st4"></div>
+    <div id="st5"></div>
+    <div id="an1"></div>
+    <div id="an2"></div>
+    <div id="an3"></div>
+    <div id="an4"></div>
+    <div id="an5"></div>
+    <div id="an6"></div>
+    <div id="an7"></div>
+    <div id="an8"></div>
+    <div id="an9"></div>
+    <div id="an10"></div>
+    <div id="an11"></div>
+    <div id="an12"></div>
+    <div id="an13"></div>
+    <div id="an14"></div>
+    <div id="an15"></div>
+    <div id="an16"></div>
+    <div id="an17"></div>
+    <div id="an18"></div>
+  </div>
+  <div id="shadow"></div>
+</div>
+
+
+            <p>Analyz your application...</p>
           </div>
         </div>
       </div>
@@ -279,8 +321,15 @@
     </div>
   </section>
 
-  <!-- ======================= RESULT SECTION ======================= -->
+  <!-- ======================= RESULT SECTION (the "new page" shown after Predict) ======================= -->
   <section class="result-section" id="resultSection" hidden>
+
+    <!-- Recap of everything the applicant entered -->
+    <div class="applicant-summary" id="applicantSummary">
+      <h3>Your application details</h3>
+      <div class="summary-grid" id="applicantSummaryList"></div>
+    </div>
+
     <div class="result-card" id="resultCard">
 
       <canvas class="confetti-canvas" id="confettiCanvas" aria-hidden="true"></canvas>
@@ -315,32 +364,6 @@
     </div>
   </section>
 
-  <!-- ======================= DASHBOARD CHARTS ======================= -->
-  <section class="charts-section reveal" aria-label="Portfolio analytics">
-    <div class="section-heading">
-      <h2>Portfolio insights</h2>
-      <p>Aggregate patterns from recent loan applications.</p>
-    </div>
-    <div class="charts-grid">
-      <div class="chart-card">
-        <p class="chart-title">Loan distribution</p>
-        <canvas id="chartLoanDistribution" height="220"></canvas>
-      </div>
-      <div class="chart-card">
-        <p class="chart-title">CIBIL score distribution</p>
-        <canvas id="chartCibilDistribution" height="220"></canvas>
-      </div>
-      <div class="chart-card">
-        <p class="chart-title">Income vs loan amount</p>
-        <canvas id="chartIncomeVsLoan" height="220"></canvas>
-      </div>
-      <div class="chart-card">
-        <p class="chart-title">Asset breakdown</p>
-        <canvas id="chartAssetBreakdown" height="220"></canvas>
-      </div>
-    </div>
-  </section>
-
 </main>
 
 <!-- ======================= FOOTER ======================= -->
@@ -360,8 +383,8 @@
 
     <div class="footer-col">
       <p class="footer-heading">Company</p>
-      <a href="#about">About</a>
-      <a href="#contact">Contact</a>
+      <button type="button" class="footer-link-btn" data-modal="about">About</button>
+      <button type="button" class="footer-link-btn" data-modal="contact">Contact</button>
       <a href="#support">Support</a>
     </div>
     <div class="footer-col">
@@ -392,7 +415,55 @@
   </div>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<!-- ======================= MODAL (used for both About and Contact) ======================= -->
+<div class="modal-overlay" id="modalOverlay" hidden>
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <button type="button" class="modal-close" id="modalClose" aria-label="Close dialog">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <div class="modal-content" id="modalContent"></div>
+  </div>
+</div>
+
+<template id="aboutModalTemplate">
+  <h2 id="modalTitle">About this project</h2>
+  <p>The AI Loan Approval System uses a trained machine learning model to instantly predict whether a loan application is likely to be approved or rejected, based on the applicant's income, credit history, and assets.</p>
+  <ul class="modal-list">
+    <li>Fast, instant predictions from a trained classification model</li>
+    <li>Applicant data is used only to generate the prediction shown to you</li>
+    <li>Confidence score and risk level come from the model's own probability output</li>
+    <li>Built for demonstration and educational purposes</li>
+  </ul>
+</template>
+
+<template id="contactModalTemplate">
+  <h2 id="modalTitle">Get in touch</h2>
+  <p>Reach out through any of the channels below.</p>
+  <div class="modal-contact-links">
+    <a class="modal-contact-link" href="mailto:hello@loaniq.example">
+      <span class="modal-contact-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16v12H4z" stroke="currentColor" stroke-width="1.6"/><path d="M4 7l8 6 8-6" stroke="currentColor" stroke-width="1.6"/></svg></span>
+      <span>
+        <span class="modal-contact-label">Gmail</span>
+        <span class="modal-contact-value">hello@loaniq.example</span>
+      </span>
+    </a>
+    <a class="modal-contact-link" href="https://linkedin.com" target="_blank" rel="noopener">
+      <span class="modal-contact-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="1.6"/><path d="M7.5 10.5v6M7.5 7.8v.01M11.5 16.5v-3.7c0-1.5 1-2.3 2.3-2.3 1.3 0 2.2.8 2.2 2.3v3.7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+      <span>
+        <span class="modal-contact-label">LinkedIn</span>
+        <span class="modal-contact-value">linkedin.com/company/loaniq</span>
+      </span>
+    </a>
+    <a class="modal-contact-link" href="https://github.com" target="_blank" rel="noopener">
+      <span class="modal-contact-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2a10 10 0 00-3.16 19.5c.5.1.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.46-1.16-1.11-1.47-1.11-1.47-.9-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.1-.65.35-1.08.63-1.33-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02a9.6 9.6 0 015 0c1.9-1.3 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.6 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0012 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg></span>
+      <span>
+        <span class="modal-contact-label">GitHub</span>
+        <span class="modal-contact-value">github.com/loaniq</span>
+      </span>
+    </a>
+  </div>
+</template>
+
 <script src="script.js"></script>
 </body>
 </html>
