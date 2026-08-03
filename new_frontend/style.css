@@ -329,7 +329,7 @@ main { overflow-x: hidden; }
 
 .hero-actions { display: flex; gap: 14px; margin-top: 30px; flex-wrap: wrap; }
 
-.hero-art,
+/* .hero-art,
 .side-art { padding: 24px; }
 .hero-art svg,
 .side-art svg { width: 100%; height: auto; }
@@ -341,7 +341,7 @@ main { overflow-x: hidden; }
 .art-line { stroke: var(--primary); }
 .art-dot { fill: var(--primary); }
 .art-badge, .art-badge-alt { fill: var(--success-light); }
-.art-check, .art-check-alt { stroke: var(--success); }
+.art-check, .art-check-alt { stroke: var(--success); } */
 
 /* ---------- 6. Stats cards ---------- */
 .stats-section { padding: 0 24px 56px; }
@@ -392,7 +392,7 @@ main { overflow-x: hidden; }
   align-items: start;
 }
 
-.side-art { margin-bottom: 28px; }
+
 
 .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .feature-card {
