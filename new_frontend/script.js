@@ -3,16 +3,20 @@
    Sections:
    1. Theme toggle (dark/light)
    2. Mobile nav toggle
-   3. Scroll-reveal animations
-   4. Animated stat counters
-   5. Ripple effect on buttons
-   6. Floating label state (filled/empty)
-   7. Form validation
-   8. Confetti effect
-   9. Risk band + recommendation, derived from the model's real confidence
-      score returned by the API (the score itself is not invented client-side)
-   10. Prediction submission (Fetch API -> FastAPI backend)
-   11. Dashboard charts (Chart.js)
+   3. About / Contact modal popups
+   4. Scroll-reveal animations
+   5. Animated stat counters
+   6. Ripple effect on buttons
+   7. Floating label state (filled/empty)
+   8. Form validation
+   9. Confetti effect
+   10. Applicant details summary (recap shown on the result page)
+   11. Risk band + recommendation, derived from the model's real confidence
+       score returned by the API (the score itself is not invented client-side)
+   12. Prediction submission (Fetch API -> FastAPI backend)
+
+   NOTE: the "Portfolio insights" charts (Chart.js) were removed from this
+   page along with their <canvas> elements and the Chart.js <script> tag.
    ========================================================================= */
 
 /* -------------------------------------------------------------------------
@@ -54,6 +58,64 @@ siteNav.querySelectorAll('a').forEach((link) => {
     siteNav.classList.remove('open');
     navToggle.setAttribute('aria-expanded', 'false');
   });
+});
+
+/* -------------------------------------------------------------------------
+   3. ABOUT / CONTACT MODAL POPUPS
+   Any element with `data-modal="about"` or `data-modal="contact"` (header
+   nav, footer links, the hero "Learn More" button, etc.) opens the shared
+   modal overlay and fills it from the matching <template>. One overlay is
+   reused for both, content is swapped via template cloning.
+   ------------------------------------------------------------------------- */
+const modalOverlay = document.getElementById('modalOverlay');
+const modalContent = document.getElementById('modalContent');
+const modalClose = document.getElementById('modalClose');
+
+const MODAL_TEMPLATES = {
+  about: document.getElementById('aboutModalTemplate'),
+  contact: document.getElementById('contactModalTemplate')
+};
+
+let lastModalTrigger = null;
+
+function openModal(type) {
+  const template = MODAL_TEMPLATES[type];
+  if (!template) return;
+
+  modalContent.innerHTML = '';
+  modalContent.appendChild(template.content.cloneNode(true));
+
+  modalOverlay.hidden = false;
+  // Let the browser paint `hidden = false` first so the CSS transition runs.
+  requestAnimationFrame(() => modalOverlay.classList.add('open'));
+
+  modalClose.focus();
+  document.body.classList.add('modal-open');
+}
+
+function closeModal() {
+  modalOverlay.classList.remove('open');
+  document.body.classList.remove('modal-open');
+  setTimeout(() => { modalOverlay.hidden = true; }, 200);
+  if (lastModalTrigger) lastModalTrigger.focus();
+}
+
+document.querySelectorAll('[data-modal]').forEach((trigger) => {
+  trigger.addEventListener('click', () => {
+    lastModalTrigger = trigger;
+    openModal(trigger.dataset.modal);
+    // Close the mobile nav drawer too, if it was open.
+    siteNav.classList.remove('open');
+    navToggle.setAttribute('aria-expanded', 'false');
+  });
+});
+
+modalClose.addEventListener('click', closeModal);
+modalOverlay.addEventListener('click', (event) => {
+  if (event.target === modalOverlay) closeModal();
+});
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && !modalOverlay.hidden) closeModal();
 });
 
 /* -------------------------------------------------------------------------
@@ -375,6 +437,50 @@ function collectFormData() {
   };
 }
 
+/* -------------------------------------------------------------------------
+   10. APPLICANT DETAILS SUMMARY
+   When Predict is clicked, the result page (section 12) shows a recap of
+   every value the applicant entered, alongside the prediction itself.
+   ------------------------------------------------------------------------- */
+const FIELD_LABELS = {
+  no_of_dependents: 'Number of dependents',
+  education: 'Education',
+  self_employed: 'Self employed',
+  income_annum: 'Annual income',
+  loan_amount: 'Loan amount',
+  loan_term: 'Loan term (months)',
+  cibil_score: 'CIBIL score',
+  residential_assets_value: 'Residential assets',
+  commercial_assets_value: 'Commercial assets',
+  luxury_assets_value: 'Luxury assets',
+  bank_asset_value: 'Bank asset value'
+};
+
+const CURRENCY_FIELDS = new Set([
+  'income_annum', 'loan_amount', 'residential_assets_value',
+  'commercial_assets_value', 'luxury_assets_value', 'bank_asset_value'
+]);
+
+function formatFieldValue(name, value) {
+  if (CURRENCY_FIELDS.has(name)) return `₹${Number(value).toLocaleString('en-IN')}`;
+  return String(value).trim();
+}
+
+function renderApplicantSummary(payload) {
+  const list = document.getElementById('applicantSummaryList');
+  list.innerHTML = '';
+
+  Object.keys(FIELD_LABELS).forEach((name) => {
+    const item = document.createElement('div');
+    item.className = 'summary-item';
+    item.innerHTML = `
+      <span class="summary-label">${FIELD_LABELS[name]}</span>
+      <span class="summary-value">${formatFieldValue(name, payload[name])}</span>
+    `;
+    list.appendChild(item);
+  });
+}
+
 const icons = {
   approved: '<svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   rejected: '<svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -415,6 +521,7 @@ loanForm.addEventListener('submit', async (event) => {
   if (!validateForm()) return;
 
   const payload = collectFormData();
+  renderApplicantSummary(payload);
   setLoading(true);
 
   try {
@@ -486,89 +593,5 @@ loanForm.addEventListener('submit', async (event) => {
     console.error('Loan prediction request failed:', err);
   } finally {
     setLoading(false);
-  }
-});
-
-/* -------------------------------------------------------------------------
-   11. DASHBOARD CHARTS (Chart.js)
-   Illustrative portfolio-level charts. These use static sample data since
-   the backend contract only returns a single prediction, not aggregate
-   analytics — swap `datasets` for real data if/when such an endpoint
-   exists.
-   ------------------------------------------------------------------------- */
-const isDark = () => root.getAttribute('data-theme') === 'dark';
-const gridColor = () => (isDark() ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.06)');
-const textColor = () => (isDark() ? '#B0BAC9' : '#475569');
-
-Chart.defaults.font.family = "'Inter', sans-serif";
-Chart.defaults.color = textColor();
-
-new Chart(document.getElementById('chartLoanDistribution'), {
-  type: 'doughnut',
-  data: {
-    labels: ['Approved', 'Rejected'],
-    datasets: [{ data: [68, 32], backgroundColor: ['#22C55E', '#EF4444'], borderWidth: 0 }]
-  },
-  options: {
-    responsive: true,
-    animation: { animateScale: true, animateRotate: true, duration: 900 },
-    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 16 } } }
-  }
-});
-
-new Chart(document.getElementById('chartCibilDistribution'), {
-  type: 'bar',
-  data: {
-    labels: ['300-500', '500-650', '650-750', '750-850', '850-900'],
-    datasets: [{ label: 'Applicants', data: [8, 22, 40, 26, 12], backgroundColor: '#2563EB', borderRadius: 6 }]
-  },
-  options: {
-    responsive: true,
-    animation: { duration: 900, easing: 'easeOutQuart' },
-    plugins: { legend: { display: false } },
-    scales: {
-      x: { grid: { display: false } },
-      y: { grid: { color: gridColor() }, beginAtZero: true }
-    }
-  }
-});
-
-new Chart(document.getElementById('chartIncomeVsLoan'), {
-  type: 'scatter',
-  data: {
-    datasets: [{
-      label: 'Applicants',
-      data: Array.from({ length: 40 }, () => ({
-        x: Math.round(200000 + Math.random() * 900000),
-        y: Math.round(500000 + Math.random() * 3500000)
-      })),
-      backgroundColor: '#2563EB'
-    }]
-  },
-  options: {
-    responsive: true,
-    animation: { duration: 900 },
-    plugins: { legend: { display: false } },
-    scales: {
-      x: { title: { display: true, text: 'Annual income (₹)' }, grid: { color: gridColor() } },
-      y: { title: { display: true, text: 'Loan amount (₹)' }, grid: { color: gridColor() } }
-    }
-  }
-});
-
-new Chart(document.getElementById('chartAssetBreakdown'), {
-  type: 'pie',
-  data: {
-    labels: ['Residential', 'Commercial', 'Luxury', 'Bank'],
-    datasets: [{
-      data: [42, 21, 15, 22],
-      backgroundColor: ['#2563EB', '#22C55E', '#F59E0B', '#A855F7'],
-      borderWidth: 0
-    }]
-  },
-  options: {
-    responsive: true,
-    animation: { animateScale: true, animateRotate: true, duration: 900 },
-    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 16 } } }
   }
 });
